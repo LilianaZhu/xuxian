@@ -252,8 +252,8 @@ function createInitialWorkspace(): Workspace {
       },
       {
         id: "guide-add-task",
-        title: "在这里添加稍后任务",
-        note: "在上方输入任务名称，按回车或点「添加」。",
+        title: "在页面顶部添加新任务",
+        note: "使用页面最上方的「快速添加任务」输入框，按回车或点「添加」。",
         status: "later",
         createdAt: now,
         updatedAt: now,
