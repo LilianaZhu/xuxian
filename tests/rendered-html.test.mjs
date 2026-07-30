@@ -149,6 +149,7 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(css, /\.rich-editor-toolbar/);
   assert.match(css, /\.datetime-picker-field/);
   assert.match(css, /\.workday-countdown/);
+  assert.match(css, /\.modal-actions \.workday-disable-button[\s\S]*text-align:\s*center/);
   assert.match(css, /list-style-type:\s*disc/);
   assert.match(css, /list-style-type:\s*decimal/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);

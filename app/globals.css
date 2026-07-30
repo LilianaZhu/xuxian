@@ -2024,6 +2024,12 @@ a:focus-visible {
     width: 100%;
   }
 
+  .modal-actions .workday-disable-button {
+    margin-right: 0;
+    padding: 11px 14px;
+    text-align: center;
+  }
+
   .task-manager {
     max-height: calc(100vh - 20px);
   }
