@@ -1348,6 +1348,9 @@ export default function Home() {
                     <button className="later-edit-button" type="button" onClick={() => openTaskEditor(task.id, "note")}>
                       编辑
                     </button>
+                    <button className="later-complete-button" type="button" onClick={() => completeTask(task.id)}>
+                      完成
+                    </button>
                     {due && <button className="snooze-button" type="button" onClick={() => snoozeTask(task.id)}>2 小时后</button>}
                   </div>
                 </div>
@@ -1411,6 +1414,9 @@ export default function Home() {
                     <div className="later-item-actions">
                       <button className="later-edit-button" type="button" onClick={() => openTaskEditor(task.id, "note")}>
                         编辑
+                      </button>
+                      <button className="later-complete-button" type="button" onClick={() => completeTask(task.id)}>
+                        完成
                       </button>
                     </div>
                   </div>

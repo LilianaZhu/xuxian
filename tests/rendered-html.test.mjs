@@ -88,6 +88,8 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /reorderLaterTask/);
   assert.match(page, /拖动排序/);
   assert.match(page, /draggable/);
+  assert.match(page, /className="later-complete-button"/);
+  assert.match(page, /onClick=\{\(\) => completeTask\(task\.id\)\}/);
   assert.match(page, /role="alertdialog"/);
   assert.match(page, /提醒时间到了/);
   assert.match(page, /type="date"/);
