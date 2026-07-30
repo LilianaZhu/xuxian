@@ -66,6 +66,11 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /indexedDB\.open/);
   assert.match(page, /type TaskStatus = "active" \| "later" \| "done"/);
   assert.match(page, /schemaVersion: 3/);
+  assert.match(page, /欢迎使用续线/);
+  assert.match(page, /在这里添加稍后任务/);
+  assert.match(page, /用「编辑」添加备注和提醒/);
+  assert.match(page, /拖动左侧手柄，调整任务顺序/);
+  assert.doesNotMatch(page, /整理季度合规报告|补交 6 月发票|定位登录失败问题/);
   assert.match(page, /plainTextToNoteHtml/);
   assert.match(page, /你的数据没有被改动/);
   assert.match(page, /快速添加任务，回车保存/);
