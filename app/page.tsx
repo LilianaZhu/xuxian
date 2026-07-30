@@ -925,9 +925,23 @@ export default function Home() {
     }));
   }
 
-  function applyCustomReminder() {
-    if (!customReminderDate || !customReminderTime) return;
-    updateEditReminder(combineLocalDateAndTime(customReminderDate, customReminderTime));
+  function updateCustomReminderDate(dateValue: string) {
+    setCustomReminderDate(dateValue);
+    if (!dateValue) {
+      setCustomReminderTime("");
+      updateEditReminder(null);
+      return;
+    }
+    if (customReminderTime) {
+      updateEditReminder(combineLocalDateAndTime(dateValue, customReminderTime));
+    }
+  }
+
+  function updateCustomReminderTime(timeValue: string) {
+    setCustomReminderTime(timeValue);
+    if (customReminderDate && timeValue) {
+      updateEditReminder(combineLocalDateAndTime(customReminderDate, timeValue));
+    }
   }
 
   function openDateTimePicker(event: ReactMouseEvent<HTMLLabelElement>) {
@@ -1858,7 +1872,7 @@ export default function Home() {
                           type="date"
                           min={dateInputValue(now)}
                           value={customReminderDate}
-                          onChange={(event) => setCustomReminderDate(event.target.value)}
+                          onChange={(event) => updateCustomReminderDate(event.target.value)}
                         />
                         <svg className="datetime-picker-icon" viewBox="0 0 24 24" aria-hidden="true">
                           <rect x="3.5" y="5.5" width="17" height="15" rx="2" />
@@ -1876,17 +1890,9 @@ export default function Home() {
                           disabled={!customReminderDate}
                           min={customReminderDate === dateInputValue(now) ? timeInputValue(now) : undefined}
                           value={customReminderTime}
-                          onChange={(event) => setCustomReminderTime(event.target.value)}
+                          onChange={(event) => updateCustomReminderTime(event.target.value)}
                         />
                       </label>
-                      <button
-                        className="datetime-picker-apply"
-                        type="button"
-                        disabled={!customReminderDate || !customReminderTime}
-                        onClick={applyCustomReminder}
-                      >
-                        应用
-                      </button>
                     </div>
                     <small className="reminder-help">
                       {editingDraft.returnAt !== editingTask.returnAt
