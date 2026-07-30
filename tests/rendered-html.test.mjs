@@ -80,9 +80,11 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /contentEditable/);
   assert.match(page, /insertUnorderedList/);
   assert.match(page, /insertOrderedList/);
+  assert.match(page, /strikeThrough/);
   assert.match(page, /sanitizeNoteHtml/);
   assert.match(page, /aria-label="粗体"/);
   assert.match(page, /aria-label="下划线"/);
+  assert.match(page, /aria-label="删除线"/);
   assert.match(page, /reorderLaterTask/);
   assert.match(page, /拖动排序/);
   assert.match(page, /draggable/);

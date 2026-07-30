@@ -88,7 +88,7 @@ function asTime(value: unknown) {
   return hours < 24 && minutes < 60 ? text : null;
 }
 
-const NOTE_TAGS = new Set(["B", "BR", "DIV", "LI", "OL", "P", "STRONG", "U", "UL"]);
+const NOTE_TAGS = new Set(["B", "BR", "DIV", "LI", "OL", "P", "S", "STRIKE", "STRONG", "U", "UL"]);
 
 function sanitizeNoteHtml(value: string) {
   if (!value.trim()) return "";
@@ -188,7 +188,7 @@ function RichTextEditor({
     if (editor) onChange(sanitizeNoteHtml(editor.innerHTML));
   }
 
-  function format(command: "bold" | "underline" | "insertUnorderedList" | "insertOrderedList") {
+  function format(command: "bold" | "underline" | "strikeThrough" | "insertUnorderedList" | "insertOrderedList") {
     editorRef.current?.focus();
     document.execCommand(command);
     publish();
@@ -205,6 +205,7 @@ function RichTextEditor({
       <div className="rich-editor-toolbar" role="toolbar" aria-label="备注格式">
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("bold")} aria-label="粗体"><strong>B</strong></button>
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("underline")} aria-label="下划线"><u>U</u></button>
+        <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("strikeThrough")} aria-label="删除线"><s>S</s></button>
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("insertUnorderedList")} aria-label="项目符号列表">• 列表</button>
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("insertOrderedList")} aria-label="数字列表">1. 列表</button>
       </div>
