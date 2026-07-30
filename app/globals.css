@@ -1258,7 +1258,7 @@ a:focus-visible {
   border: 1px solid var(--line);
   border-radius: 9px;
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(110px, 1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(100px, 1fr) 64px;
   overflow: hidden;
 }
 
@@ -1371,6 +1371,25 @@ a:focus-visible {
 .modal-card .datetime-picker-field > input:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.datetime-picker-apply {
+  background: #fafaf8;
+  border: 0;
+  border-left: 1px solid var(--line-soft);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 650;
+  padding: 0 10px;
+}
+
+.datetime-picker-apply:hover:not(:disabled) {
+  background: var(--green-soft);
+}
+
+.datetime-picker-apply:disabled {
+  color: var(--faint);
+  cursor: default;
 }
 
 .reminder-help {

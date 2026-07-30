@@ -472,12 +472,6 @@ function combineLocalDateAndTime(dateValue: string, timeValue: string) {
   return new Date(year, month - 1, day, hours, minutes, 0, 0).getTime();
 }
 
-function defaultReminderTime(dateValue: string, now: number) {
-  if (dateValue !== dateInputValue(now)) return "10:30";
-  const oneHourLater = now + 60 * 60 * 1000;
-  return dateInputValue(oneHourLater) === dateValue ? timeInputValue(oneHourLater) : "23:59";
-}
-
 function reminderTimeText(timestamp: number) {
   return new Date(timestamp).toLocaleString("zh-CN", {
     month: "numeric",
@@ -532,6 +526,8 @@ export default function Home() {
   const [currentNoteDraft, setCurrentNoteDraft] = useState("");
   const [returnChoice, setReturnChoice] = useState("none");
   const [newTitle, setNewTitle] = useState("");
+  const [customReminderDate, setCustomReminderDate] = useState("");
+  const [customReminderTime, setCustomReminderTime] = useState("");
   const [toast, setToast] = useState("");
   const [lastDeleted, setLastDeleted] = useState<DeletedTask | null>(null);
   const [lastCompleted, setLastCompleted] = useState<CompletedTask | null>(null);
@@ -889,9 +885,13 @@ export default function Home() {
   function openTaskEditor(taskId: string, focus: EditTarget["focus"] = "title") {
     const task = workspace?.tasks.find((item) => item.id === taskId);
     if (!task) return;
+    const draft = editDrafts[taskId];
+    const returnAt = draft ? draft.returnAt : task.returnAt;
     setEditDrafts((current) => current[taskId]
       ? current
       : { ...current, [taskId]: { title: task.title, note: task.note, returnAt: task.returnAt } });
+    setCustomReminderDate(dateInputValue(returnAt));
+    setCustomReminderTime(timeInputValue(returnAt));
     setEditTarget({ id: taskId, focus });
   }
 
@@ -913,6 +913,8 @@ export default function Home() {
 
   function updateEditReminder(returnAt: number | null) {
     if (!editTarget) return;
+    setCustomReminderDate(dateInputValue(returnAt));
+    setCustomReminderTime(timeInputValue(returnAt));
     setEditDrafts((current) => ({
       ...current,
       [editTarget.id]: {
@@ -921,6 +923,11 @@ export default function Home() {
         returnAt,
       },
     }));
+  }
+
+  function applyCustomReminder() {
+    if (!customReminderDate || !customReminderTime) return;
+    updateEditReminder(combineLocalDateAndTime(customReminderDate, customReminderTime));
   }
 
   function openDateTimePicker(event: ReactMouseEvent<HTMLLabelElement>) {
@@ -1843,25 +1850,15 @@ export default function Home() {
                     <div className="datetime-picker" aria-label="自定义提醒时间">
                       <label
                         className="datetime-picker-field is-date"
-                        data-display={editingDraft.returnAt ? dateInputValue(editingDraft.returnAt).replaceAll("-", "/") : "选择日期"}
+                        data-display={customReminderDate ? customReminderDate.replaceAll("-", "/") : "选择日期"}
                         onClick={openDateTimePicker}
                       >
                         <span>日期</span>
                         <input
                           type="date"
                           min={dateInputValue(now)}
-                          value={dateInputValue(editingDraft.returnAt)}
-                          onChange={(event) => {
-                            updateEditReminder(
-                              event.target.value
-                                ? combineLocalDateAndTime(
-                                    event.target.value,
-                                    timeInputValue(editingDraft.returnAt) || defaultReminderTime(event.target.value, now),
-                                  )
-                                : null,
-                            );
-                            event.currentTarget.blur();
-                          }}
+                          value={customReminderDate}
+                          onChange={(event) => setCustomReminderDate(event.target.value)}
                         />
                         <svg className="datetime-picker-icon" viewBox="0 0 24 24" aria-hidden="true">
                           <rect x="3.5" y="5.5" width="17" height="15" rx="2" />
@@ -1870,25 +1867,26 @@ export default function Home() {
                       </label>
                       <label
                         className="datetime-picker-field is-time"
-                        data-display={timeInputValue(editingDraft.returnAt) || "选择时间"}
+                        data-display={customReminderTime || "选择时间"}
                         onClick={openDateTimePicker}
                       >
                         <span>时间</span>
                         <input
                           type="time"
-                          disabled={!editingDraft.returnAt}
-                          min={dateInputValue(editingDraft.returnAt) === dateInputValue(now) ? timeInputValue(now) : undefined}
-                          value={timeInputValue(editingDraft.returnAt)}
-                          onChange={(event) => {
-                            updateEditReminder(
-                              event.target.value && editingDraft.returnAt
-                                ? combineLocalDateAndTime(dateInputValue(editingDraft.returnAt), event.target.value)
-                                : null,
-                            );
-                            event.currentTarget.blur();
-                          }}
+                          disabled={!customReminderDate}
+                          min={customReminderDate === dateInputValue(now) ? timeInputValue(now) : undefined}
+                          value={customReminderTime}
+                          onChange={(event) => setCustomReminderTime(event.target.value)}
                         />
                       </label>
+                      <button
+                        className="datetime-picker-apply"
+                        type="button"
+                        disabled={!customReminderDate || !customReminderTime}
+                        onClick={applyCustomReminder}
+                      >
+                        应用
+                      </button>
                     </div>
                     <small className="reminder-help">
                       {editingDraft.returnAt !== editingTask.returnAt

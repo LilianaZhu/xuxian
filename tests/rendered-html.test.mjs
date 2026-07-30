@@ -99,6 +99,11 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /combineLocalDateAndTime/);
   assert.match(page, /data-display=/);
   assert.match(page, /openDateTimePicker/);
+  assert.match(page, /customReminderDate/);
+  assert.match(page, /applyCustomReminder/);
+  assert.match(page, /className="datetime-picker-apply"/);
+  assert.doesNotMatch(page, /defaultReminderTime/);
+  assert.doesNotMatch(page, /event\.currentTarget\.blur\(\)/);
   assert.match(page, /datetime-picker-field is-date/);
   assert.match(page, /datetime-picker-icon/);
   assert.match(page, /可以从上方按钮快速选择/);
