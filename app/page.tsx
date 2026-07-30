@@ -56,6 +56,11 @@ type DeletedTask = {
   wasActive: boolean;
 };
 
+type CompletedTask = {
+  task: Task;
+  focusEndsAt: number | null;
+};
+
 type ImportDraft = {
   workspace: Workspace;
   fileName: string;
@@ -529,12 +534,15 @@ export default function Home() {
   const [newTitle, setNewTitle] = useState("");
   const [toast, setToast] = useState("");
   const [lastDeleted, setLastDeleted] = useState<DeletedTask | null>(null);
+  const [lastCompleted, setLastCompleted] = useState<CompletedTask | null>(null);
+  const [confirmingCompleteId, setConfirmingCompleteId] = useState<string | null>(null);
   const [reminderTaskId, setReminderTaskId] = useState<string | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const quickTaskInput = useRef<HTMLInputElement>(null);
   const backupFileInput = useRef<HTMLInputElement>(null);
   const toastTimer = useRef<number | null>(null);
+  const completeConfirmTimer = useRef<number | null>(null);
   const shownReminders = useRef(new Set<string>());
 
   useEffect(() => {
@@ -678,14 +686,20 @@ export default function Home() {
     showWorkdayEnd,
   ]);
 
-  function showToast(message: string, deleted: DeletedTask | null = null) {
+  function showToast(
+    message: string,
+    deleted: DeletedTask | null = null,
+    completed: CompletedTask | null = null,
+  ) {
     setToast(message);
     setLastDeleted(deleted);
+    setLastCompleted(completed);
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
     toastTimer.current = window.setTimeout(() => {
       setToast("");
       setLastDeleted(null);
-    }, deleted ? 6000 : 2600);
+      setLastCompleted(null);
+    }, deleted || completed ? 6000 : 2600);
   }
 
   function updateWorkspace(mutator: (current: Workspace) => Workspace) {
@@ -981,6 +995,8 @@ export default function Home() {
   }
 
   function completeTask(taskId: string) {
+    const taskToComplete = workspace?.tasks.find((task) => task.id === taskId);
+    if (!workspace || !taskToComplete || taskToComplete.status === "done") return;
     const currentTime = Date.now();
     updateWorkspace((current) => ({
       ...current,
@@ -1000,7 +1016,19 @@ export default function Home() {
           : task,
       ),
     }));
-    showToast("已完成");
+    showToast("已完成", null, { task: taskToComplete, focusEndsAt: workspace.focusEndsAt });
+  }
+
+  function requestCompleteTask(taskId: string) {
+    if (confirmingCompleteId === taskId) {
+      if (completeConfirmTimer.current) window.clearTimeout(completeConfirmTimer.current);
+      setConfirmingCompleteId(null);
+      completeTask(taskId);
+      return;
+    }
+    if (completeConfirmTimer.current) window.clearTimeout(completeConfirmTimer.current);
+    setConfirmingCompleteId(taskId);
+    completeConfirmTimer.current = window.setTimeout(() => setConfirmingCompleteId(null), 3000);
   }
 
   function restoreTask(taskId: string) {
@@ -1091,6 +1119,31 @@ export default function Home() {
       return { ...current, focusEndsAt: deleted.wasActive ? null : current.focusEndsAt, tasks };
     });
     setLastDeleted(null);
+    setToast("");
+    if (toastTimer.current) window.clearTimeout(toastTimer.current);
+  }
+
+  function undoComplete() {
+    if (!lastCompleted) return;
+    const completed = lastCompleted;
+    updateWorkspace((current) => ({
+      ...current,
+      focusEndsAt: completed.task.status === "active" ? completed.focusEndsAt : current.focusEndsAt,
+      tasks: current.tasks.map((task) => {
+        if (task.id === completed.task.id) return completed.task;
+        if (completed.task.status === "active" && task.status === "active") {
+          return {
+            ...task,
+            status: "later",
+            totalSeconds: task.totalSeconds + sessionSeconds(task, Date.now()),
+            updatedAt: Date.now(),
+            startedAt: null,
+          };
+        }
+        return task;
+      }),
+    }));
+    setLastCompleted(null);
     setToast("");
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
   }
@@ -1348,8 +1401,12 @@ export default function Home() {
                     <button className="later-edit-button" type="button" onClick={() => openTaskEditor(task.id, "note")}>
                       编辑
                     </button>
-                    <button className="later-complete-button" type="button" onClick={() => completeTask(task.id)}>
-                      完成
+                    <button
+                      className={`later-complete-button ${confirmingCompleteId === task.id ? "is-confirming" : ""}`}
+                      type="button"
+                      onClick={() => requestCompleteTask(task.id)}
+                    >
+                      {confirmingCompleteId === task.id ? "确认" : "完成"}
                     </button>
                     {due && <button className="snooze-button" type="button" onClick={() => snoozeTask(task.id)}>2 小时后</button>}
                   </div>
@@ -1415,8 +1472,12 @@ export default function Home() {
                       <button className="later-edit-button" type="button" onClick={() => openTaskEditor(task.id, "note")}>
                         编辑
                       </button>
-                      <button className="later-complete-button" type="button" onClick={() => completeTask(task.id)}>
-                        完成
+                      <button
+                        className={`later-complete-button ${confirmingCompleteId === task.id ? "is-confirming" : ""}`}
+                        type="button"
+                        onClick={() => requestCompleteTask(task.id)}
+                      >
+                        {confirmingCompleteId === task.id ? "确认" : "完成"}
                       </button>
                     </div>
                   </div>
@@ -1903,6 +1964,7 @@ export default function Home() {
       <div className={`toast ${toast ? "show" : ""}`} role="status" aria-live="polite">
         <span>{toast}</span>
         {lastDeleted && <button type="button" onClick={undoDelete}>撤销</button>}
+        {lastCompleted && <button type="button" onClick={undoComplete}>撤销</button>}
       </div>
     </main>
   );

@@ -745,6 +745,11 @@ a:focus-visible {
   color: var(--green-dark);
 }
 
+.later-complete-button.is-confirming {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
 .later-item.is-due .later-item-actions {
   border-left-color: #ecdfca;
 }
