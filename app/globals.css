@@ -1809,12 +1809,6 @@ a:focus-visible {
   box-shadow: none;
 }
 
-.workday-end-help {
-  color: var(--faint);
-  font-size: 11px;
-  margin: 0;
-}
-
 .modal-actions .workday-disable-button {
   color: #8f625a;
   margin-right: auto;

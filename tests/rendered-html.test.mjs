@@ -131,7 +131,8 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /accept="\.json,application\/json"/);
   assert.match(page, /function workdayCountdownText/);
   assert.match(page, /workdayEnd: asTime\(raw\.workdayEnd\)/);
-  assert.match(page, /每天 8:00 后开始显示倒计时/);
+  assert.match(page, /currentMinutes < 5 \* 60/);
+  assert.doesNotMatch(page, /每天 8:00 后开始显示倒计时|workday-end-help/);
   assert.match(page, /className="workday-countdown"/);
   assert.match(page, /className="current-statuses"/);
   assert.doesNotMatch(page, /className="app-footer"/);

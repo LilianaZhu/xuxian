@@ -498,7 +498,7 @@ function workdayCountdownText(workdayEnd: string | null, now: number) {
   const current = new Date(now);
   const currentMinutes = current.getHours() * 60 + current.getMinutes();
   const endMinutes = hours * 60 + minutes;
-  if (currentMinutes < 8 * 60 || currentMinutes >= endMinutes) return `下班 ${workdayEnd}`;
+  if (currentMinutes < 5 * 60 || currentMinutes >= endMinutes) return `下班 ${workdayEnd}`;
 
   const end = new Date(now);
   end.setHours(hours, minutes, 0, 0);
@@ -1947,7 +1947,6 @@ export default function Home() {
                   required
                 />
               </label>
-              <p className="workday-end-help">每天 8:00 后开始显示倒计时。</p>
               <div className="modal-actions">
                 {workspace?.workdayEnd && (
                   <button className="workday-disable-button" type="button" onClick={disableWorkdayEnd}>关闭倒计时</button>
