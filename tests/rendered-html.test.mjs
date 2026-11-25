@@ -165,6 +165,7 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(css, /list-style-type:\s*decimal/);
   assert.match(css, /ul\[data-checklist="true"\]/);
   assert.match(css, /li\[data-checked="true"\]/);
+  assert.match(css, /padding-left:\s*0\.3em/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await access(new URL("../public/favicon.svg", import.meta.url));

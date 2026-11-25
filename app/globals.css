@@ -1511,6 +1511,7 @@ a:focus-visible {
 
 .rich-note ul[data-checklist="true"] > li,
 .rich-editor-input ul[data-checklist="true"] > li {
+  padding-left: 0.3em;
   position: relative;
 }
 
