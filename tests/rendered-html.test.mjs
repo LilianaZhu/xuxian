@@ -80,7 +80,7 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /已完成/);
   assert.match(page, /撤销/);
   assert.match(page, /任务名称/);
-  assert.match(page, /备注 <small>可选/);
+  assert.doesNotMatch(page, /备注 <small>可选/);
   assert.match(page, /openTaskEditor/);
   assert.match(page, /＋ 添加备注/);
   assert.match(page, /contentEditable/);
@@ -91,6 +91,10 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(page, /aria-label="粗体"/);
   assert.match(page, /aria-label="下划线"/);
   assert.match(page, /aria-label="删除线"/);
+  assert.match(page, /aria-label="复选框列表"/);
+  assert.match(page, /function insertChecklist/);
+  assert.match(page, /data-checklist/);
+  assert.match(page, /data-checked/);
   assert.match(page, /reorderLaterTask/);
   assert.match(page, /拖动排序/);
   assert.match(page, /draggable/);
@@ -159,6 +163,8 @@ test("keeps one simple task model in a minimal interface", async () => {
   assert.match(css, /\.modal-actions \.workday-disable-button[\s\S]*text-align:\s*center/);
   assert.match(css, /list-style-type:\s*disc/);
   assert.match(css, /list-style-type:\s*decimal/);
+  assert.match(css, /ul\[data-checklist="true"\]/);
+  assert.match(css, /li\[data-checked="true"\]/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await access(new URL("../public/favicon.svg", import.meta.url));

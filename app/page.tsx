@@ -121,7 +121,17 @@ function sanitizeNoteHtml(value: string) {
         continue;
       }
       for (const attribute of Array.from(element.attributes)) {
-        element.removeAttribute(attribute.name);
+        const keepsChecklist = element.tagName === "UL"
+          && attribute.name === "data-checklist"
+          && attribute.value === "true";
+        const keepsCheckedState = element.tagName === "LI"
+          && attribute.name === "data-checked"
+          && ["true", "false"].includes(attribute.value)
+          && element.parentElement?.matches('ul[data-checklist="true"]');
+        if (!keepsChecklist && !keepsCheckedState) element.removeAttribute(attribute.name);
+      }
+      if (element.matches('ul[data-checklist="true"] > li') && !element.hasAttribute("data-checked")) {
+        element.setAttribute("data-checked", "false");
       }
     }
   };
@@ -199,6 +209,32 @@ function RichTextEditor({
     publish();
   }
 
+  function insertChecklist() {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.focus();
+    document.execCommand("insertUnorderedList");
+    const anchorNode = window.getSelection()?.anchorNode;
+    const anchorElement = anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
+    const list = anchorElement?.closest("ul");
+    if (list && editor.contains(list)) {
+      list.setAttribute("data-checklist", "true");
+      list.querySelectorAll("li").forEach((item) => item.setAttribute("data-checked", "false"));
+    }
+    publish();
+  }
+
+  function toggleChecklistItem(event: ReactMouseEvent<HTMLDivElement>) {
+    const editor = editorRef.current;
+    const target = event.target as HTMLElement;
+    const item = target.closest('ul[data-checklist="true"] > li') as HTMLElement | null;
+    if (!editor || !item || !editor.contains(item)) return;
+    const itemLeft = item.getBoundingClientRect().left;
+    if (event.clientX > itemLeft + 4) return;
+    item.setAttribute("data-checked", item.dataset.checked === "true" ? "false" : "true");
+    publish();
+  }
+
   function pastePlainText(event: ClipboardEvent<HTMLDivElement>) {
     event.preventDefault();
     document.execCommand("insertText", false, event.clipboardData.getData("text/plain"));
@@ -213,6 +249,7 @@ function RichTextEditor({
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("strikeThrough")} aria-label="删除线"><s>S</s></button>
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("insertUnorderedList")} aria-label="项目符号列表">• 列表</button>
         <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => format("insertOrderedList")} aria-label="数字列表">1. 列表</button>
+        <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={insertChecklist} aria-label="复选框列表">☐ 列表</button>
       </div>
       <div
         ref={editorRef}
@@ -223,6 +260,7 @@ function RichTextEditor({
         aria-label={ariaLabel}
         aria-multiline="true"
         data-placeholder={placeholder}
+        onClick={toggleChecklistItem}
         onInput={publish}
         onBlur={publish}
         onPaste={pastePlainText}
@@ -1840,7 +1878,7 @@ export default function Home() {
                 />
               </label>
               <div className="form-field">
-                <span>备注 <small>可选</small></span>
+                <span>备注</span>
                 <RichTextEditor
                   autoFocus={editTarget.focus === "note"}
                   value={editingDraft.note}

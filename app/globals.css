@@ -1503,6 +1503,54 @@ a:focus-visible {
   list-style-type: decimal;
 }
 
+.rich-note ul[data-checklist="true"],
+.rich-editor-input ul[data-checklist="true"] {
+  list-style: none;
+  padding-left: 1.65em;
+}
+
+.rich-note ul[data-checklist="true"] > li,
+.rich-editor-input ul[data-checklist="true"] > li {
+  position: relative;
+}
+
+.rich-note ul[data-checklist="true"] > li::before,
+.rich-editor-input ul[data-checklist="true"] > li::before {
+  align-items: center;
+  border: 1.5px solid #9ca8a1;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: white;
+  content: "";
+  display: flex;
+  font-size: 10px;
+  font-weight: 750;
+  height: 15px;
+  justify-content: center;
+  left: -1.65em;
+  line-height: 1;
+  position: absolute;
+  top: 0.3em;
+  width: 15px;
+}
+
+.rich-editor-input ul[data-checklist="true"] > li::before {
+  cursor: pointer;
+}
+
+.rich-note ul[data-checklist="true"] > li[data-checked="true"],
+.rich-editor-input ul[data-checklist="true"] > li[data-checked="true"] {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.rich-note ul[data-checklist="true"] > li[data-checked="true"]::before,
+.rich-editor-input ul[data-checklist="true"] > li[data-checked="true"]::before {
+  background: var(--green);
+  border-color: var(--green);
+  content: "✓";
+}
+
 .choice-row {
   display: flex;
   flex-wrap: wrap;
